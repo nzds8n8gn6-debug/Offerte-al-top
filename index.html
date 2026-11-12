@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Offerte Live">
+<title>Offerte Live</title>
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--text:#1c1c1e;--sec:#8e8e93;--blue:#007aff;--green:#34c759;--red:#ff3b30}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);padding-bottom:40px}
+header{background:rgba(255,255,255,.95);position:sticky;top:0;z-index:10;padding:16px;border-bottom:1px solid #e5e5ea}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+h1{margin:0;font-size:26px;font-weight:800}
+.btns{display:flex;gap:8px}
+.btn-i{background:var(--blue);color:#fff;border:0;width:36px;height:36px;border-radius:50%;font-size:18px;font-weight:700;cursor:pointer}
+.btn-s{background:#e5e5ea;color:var(--text)}
+.search{width:100%;padding:10px 14px;border-radius:10px;border:0;background:#e5e5ea;font-size:16px;margin-bottom:12px}
+.filters{display:flex;gap:8px;overflow-x:auto}
+.f-btn{background:#e5e5ea;border:0;padding:8px 14px;border-radius:20px;font-size:14px;font-weight:600;white-space:nowrap}
+.f-btn.active{background:var(--blue);color:#fff}
+.banner{margin:12px 16px 0;padding:12px;background:#fff;border-radius:12px;display:none;flex-direction:column;gap:8px}
+.b-links{display:flex;gap:8px}
+.b-pill{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#fff}
+.list{padding:16px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}
+.c-top{display:flex;justify-content:space-between;align-items:center}
+.store{font-size:11px;font-weight:700;color:var(--sec);text-transform:uppercase}
+.badge{background:var(--red);color:#fff;font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px}
+.c-body{display:flex;gap:12px;align-items:center}
+.ico{width:54px;height:54px;background:rgba(0,122,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.title{font-size:16px;font-weight:600;margin:0 0 6px}
+.prices{display:flex;align-items:baseline;gap:8px}
+.p-now{font-size:20px;font-weight:800;color:var(--green)}
+.p-old{font-size:14px;color:var(--sec);text-decoration:line-through}
+.mini{display:flex;gap:6px;border-top:1px solid #f2f2f7;padding-top:10px}
+.m-btn{flex:1;text-align:center;padding:6px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;background:#f2f2f7;color:var(--text)}
+.acts{display:flex;gap:8px}
+.buy{flex:1;background:var(--blue);color:#fff;text-align:center;text-decoration:none;padding:10px;border-radius:10px;font-weight:600}
+.fav{background:#f2f2f7;border:0;width:42px;border-radius:10px;font-size:16px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;align-items:center;justify-content:center;padding:20px}
+.m-box{background:#fff;width:100%;max-width:400px;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.m-box input,.m-box select{width:100%;padding:12px;border-radius:10px;border:1px solid #d1d1d6;font-size:15px}
+.m-btns{display:flex;gap:10px}
+.save{flex:1;background:var(--green);color:#fff;border:0;padding:12px;border-radius:10px;font-weight:700}
+.canc{flex:1;background:#e5e5ea;border:0;padding:12px;border-radius:10px;font-weight:600}
+.status{font-size:12px;color:var(--sec);text-align:center;margin-top:8px;padding:0 16px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>Offerte Live</h1>
+    <div class="btns">
+      <button class="btn-i btn-s" onclick="syncSheet()">🔄</button>
+      <button class="btn-i btn-s" onclick="openM('sMod')">⚙️</button>
+      <button class="btn-i" onclick="openM('aMod')">+</button>
+    </div>
+  </div>
+  <input type="text" id="q" class="search" placeholder="Cerca scarpe, TV, cuffie...">
+  <div class="filters">
+    <button class="f-btn active" data-c="tutte">Tutte</button>
+    <button class="f-btn" data-c="scarpe">👟 Scarpe Uomo</button>
+    <button class="f-btn" data-c="tech">🎮 Tech & TV</button>
+    <button class="f-btn" data-c="fav">❤️ Preferiti</button>
+  </div>
+</header>
+
+<div class="banner" id="ban">
+  <div style="font-size:13px;font-weight:600;color:#8e8e93">Cerca "<span id="qTxt"></span>" sui comparatori:</div>
+  <div class="b-links">
+    <a id="lAmz" href="#" target="_blank" class="b-pill" style="background:#ff9900">Amazon</a>
+    <a id="lIde" href="#" target="_blank" class="b-pill" style="background:#0a3761">Idealo</a>
+    <a id="lTro" href="#" target="_blank" class="b-pill" style="background:#e65100">Trovaprezzi</a>
+  </div>
+</div>
+
+<div class="status" id="stat">Caricamento...</div>
+<div class="list" id="list"></div>
+
+<div class="modal" id="aMod">
+  <div class="m-box">
+    <h3 style="margin:0">Nuova Offerta</h3>
+    <input id="nTit" placeholder="Nome prodotto">
+    <select id="nCat"><option value="scarpe">👟 Scarpe Uomo</option><option value="tech">🎮 Tech & TV</option></select>
+    <input type="number" step="0.01" id="nPre" placeholder="Prezzo scontato (€)">
+    <input type="number" step="0.01" id="nOri" placeholder="Prezzo originale (€)">
+    <input id="nNeg" placeholder="Negozio">
+    <input type="url" id="nLnk" placeholder="Link diretto (opzionale)">
+    <div class="m-btns">
+      <button class="canc" onclick="closeM('aMod')">Annulla</button>
+      <button class="save" onclick="addOff()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="sMod">
+  <div class="m-box">
+    <h3 style="margin:0">Collega Google Fogli</h3>
+    <p style="font-size:12px;color:#666;margin:0">Incolla il link CSV pubblico del foglio.</p>
+    <input type="url" id="sUrl" placeholder="https://google.com">
+    <div class="m-btns">
+      <button class="canc" onclick="closeM('sMod')">Chiudi</button>
+      <button class="save" onclick="saveUrl()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const base = [
+  {id:1, t:"Nike Air Max 90 Uomo", c:"scarpe", p:89.99, o:139.99, n:"Sport Store", l:""},
+  {id:2, t:"Smart TV OLED 55\" 4K HDR", c:"tech", p:999.00, o:1499.00, n:"Tech Shop", l:""},
+  {id:3, t:"Cuffie Sony WH-1000XM5", c:"tech", p:279.00, o:399.00, n:"Audio Pro", l:""},
+  {id:4, t:"Stivaletti Chelsea Pelle Uomo", c:"scarpe", p:74.50, o:120.00, n:"Moda Uomo", l:""}
+];
+
+let man = [];
+try { man = JSON.parse(localStorage.getItem('manOff')) || []; } catch(e) { man = []; }
+let favs = [];
+try { favs = JSON.parse(localStorage.getItem('favOff')) || []; } catch(e) { favs = []; }
+let sheet = [];
+let url = localStorage.getItem('gsUrl') || '';
+let cat = 'tutte';
+
+document.getElementById('sUrl').value = url;
+
+function links(q) {
+  const e = encodeURIComponent(q);
+  return {
+    amz: `https://amazon.it{e}`,
+    ide: `https://idealo.it{e}`,
+    tro: `https://trovaprezzi.it{e.replace(/%20/g,'-')}.aspx`
+  };
+}
+
+async function syncSheet() {
+  const st = document.getElementById('stat');
+  render(); // Mostra subito i prodotti di base
+  if(!url) { 
+    st.textContent = "Offerte demo attive (tocca ⚙️ per Google Fogli)"; 
+    return; 
+  }
+  st.textContent = "Sincronizzazione con Google Fogli...";
+  try {
+    const r = await fetch(url);
+    if(!r.ok) throw new Error("Errore rete");
+    const txt = await r.text();
+    const rows = txt.split('\n').slice(1).filter(x => x.trim() !== '');
+    sheet = rows.map((row, i) => {
+      const c = row.includes(';') ? row.split(';') : row.split(',');
+      const titolo = c[0] ? c[0].replace(/"/g,'').trim() : 'Prodotto';
+      const categoria = c[1] ? c[1].replace(/"/g,'').trim().toLowerCase() : 'tech';
+      const prezzo = c[2] ? parseFloat(c[2].replace(/"/g,'').replace(',','.')) : 0;
+      const originale = c[3] ? parseFloat(c[3].replace(/"/g,'').replace(',','.')) : prezzo;
+      const negozio = c[4] ? c[4].replace(/"/g,'').trim() : 'Store';
+      const link = c[5] ? c[5].replace(/"/g,'').trim() : '';
+      return { id: 1000+i, t: titolo, c: categoria, p: isNaN(prezzo)?0:prezzo, o: isNaN(originale)?0:originale, n: negozio, l: link };
+    });
+    if(sheet.length > 0) {
+      st.textContent = "Aggiornato alle " + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    } else {
+      st.textContent = "Il Foglio Google sembra vuoto. Mostro offerte demo.";
+    }
+  } catch(e) { 
+    st.textContent = "Impossibile leggere il Foglio Google (controlla che sia pubblicato in CSV)."; 
+  }
+  render();
+}
+
+function render() {
+  const q = document.getElementById('q').value.trim();
+  const ql = q.toLowerCase();
+  const list = document.getElementById('list');
+  const ban = document.getElementById('ban');
+
+  if(q.length > 2) {
+    ban.style.display = 'flex';
+    document.getElementById('qTxt').textContent = q;
+    const lk = links(q);
+    document.getElementById('lAmz').href = lk.amz;
+    document.getElementById('lIde').href = lk.ide;
+    document.getElementById('lTro').href = lk.tro;
+  } else { ban.style.display = 'none'; }
+
+  const all = [...man, ...(sheet.length > 0 ? sheet : base)];
+  list.innerHTML = '';
+
+  const fil = all.filter(x => {
+    const mQ = x.t.toLowerCase().includes(ql) || x.n.toLowerCase().includes(ql);
+    if(!mQ) return false;
+    if(cat === 'fav') return favs.includes(x.id);
+    if(cat === 'tutte') return true;
+    return x.c.includes(cat);
+  });
+
+  if(fil.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:#8e8e93;padding:30px">Nessun prodotto trovato in questa categoria.</div>';
+    return;
+  }
+
+  fil.forEach(x => {
+    const sc = x.o > x.p ? Math.round(((x.o - x.p)/x.o)*100) : 0;
+    const isF = favs.includes(x.id);
+    const lk = links(x.t);
